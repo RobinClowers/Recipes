@@ -1,0 +1,131 @@
+<html>
+  <head>
+    <title>Recipies</title>
+    <script src="lib/jquery-1.6.4.min.js"></script>
+    <script src="lib/json2.js"></script>
+    <style>
+      ol { list-style-type: none; width: 400px; }
+      li label { width: 0; float: left; }
+      li input[type=text], textarea { margin-left: 100px; width: 100%; }
+      li input[type=submit] { float: right; }
+    </style>
+  </head>
+  <body>
+    <h1>Recipies!</h1>
+    <form id="recipe_form">
+      <ol>
+        <li>
+          <label for="title">Title</label>
+          <input type="text" id="title" name="title"></input>
+        </li>
+        <li>
+          <label for="description">Description</label>
+          <textarea id="description" name="description"></textarea>
+        </li>
+        <li>
+          <input type="submit" id="create" name="create" value="Create"></input>
+        </li>
+      </ol>
+    </form>
+    <script>
+      $(function() {
+        init();
+        $('#create').click(saveClick);
+      });
+
+      function onInitFs(fs) {
+        console.log('Opened file system: ' + fs.name);
+        console.log(fs);
+        fs.root.getFile('log.txt', {create: true}, function(fileEntry) {
+          console.log(fileEntry.isFile === true)
+          console.log(fileEntry.name == 'log.txt')
+          console.log(fileEntry.fullPath == '/log.txt')
+
+          window.recipieFile = fileEntry;
+          console.log(window.recipieFile);
+          load();
+        }, errorHandler);
+      }
+
+      function writeFile(fileEntry, writeAction) {
+        fileEntry.createWriter(function(fileWriter) {
+
+          fileWriter.onwriteend = function(e) {
+            console.log('Write completed.');
+          };
+
+          fileWriter.onerror = function(e) {
+            console.log('Write failed: ' + e.toString());
+          };
+
+          writeAction(fileWriter);
+
+        }, errorHandler);
+      }
+
+      function save(fileEntry) {
+        writeFile(fileEntry, function(fileWriter) {
+          fileWriter.truncate(0);
+        });
+
+        writeFile(fileEntry, function(fileWriter) {
+          //fileWriter.seek(fileWriter.length)
+          // Create a new Blob and write it to log.txt.
+          var builder = new window.WebKitBlobBuilder(); // Note: window.WebKitBlobBuilder in Chrome 12.
+          var data = { title: $('#title').val(), description: $('#description').val() };
+          var jsonData = JSON.stringify(data, null, 2);
+          builder.append(jsonData);
+
+          fileWriter.write(builder.getBlob('text/plain'));
+        });
+      }
+
+      function errorHandler(e) {
+        var msg = '';
+
+        switch (e.code) {
+          case FileError.QUOTA_EXCEEDED_ERR:
+            msg = 'QUOTA_EXCEEDED_ERR';
+            break;
+          case FileError.NOT_FOUND_ERR:
+            msg = 'NOT_FOUND_ERR';
+            break;
+          case FileError.SECURITY_ERR:
+            msg = 'SECURITY_ERR';
+            break;
+          case FileError.INVALID_MODIFICATION_ERR:
+            msg = 'INVALID_MODIFICATION_ERR';
+            break;
+          case FileError.INVALID_STATE_ERR:
+            msg = 'INVALID_STATE_ERR';
+            break;
+          default:
+            msg = 'Unknown Error';
+            break;
+        };
+
+        console.log('Error: ' + msg);
+      }
+
+      function init() {
+        window.requestFileSystem = window.requestFileSystem || window.webkitRequestFileSystem;
+        window.requestFileSystem(window.PERSISTENT, 5*1024*1024 /*5MB*/, onInitFs, errorHandler);
+     }
+
+      function load() {
+        window.recipieFile.file(function(file) {
+          var reader = new FileReader();
+          reader.onloadend = function(e) {
+            console.log('file contents: ' + this.result);
+          };
+          reader.readAsText(file);
+        });
+      }
+
+      function saveClick(e) {
+        e.preventDefault();
+        save(window.fileEntry);
+      }
+    </script>
+  </body>
+</html>
