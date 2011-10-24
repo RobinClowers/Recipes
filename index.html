@@ -6,7 +6,7 @@
     <style>
       ol { list-style-type: none; width: 400px; }
       li label { width: 0; float: left; }
-      li input[type=text], textarea { margin-left: 100px; width: 100%; }
+      li input[type=text], select, textarea { margin-left: 100px; width: 100%; }
       li input[type=submit] { float: right; }
     </style>
   </head>
@@ -14,6 +14,9 @@
     <h1>Recipies!</h1>
     <form id="recipe_form">
       <ol>
+        <li>
+          <label>List</label><select id="recipie-list" name="recipie-list"></select>
+        </li>
         <li>
           <label for="title">Title</label>
           <input type="text" id="title" name="title"></input>
@@ -24,6 +27,7 @@
         </li>
         <li>
           <input type="submit" id="create" name="create" value="Create"></input>
+          <input type="button" id="clear" name="clear" value="Clear"></input>
         </li>
       </ol>
     </form>
@@ -31,7 +35,26 @@
       $(function() {
         init();
         $('#create').click(saveClick);
+        $('#clear').click(clear);
+        $('#recipie-list').change(function() { changeRecipie(this.value); });
       });
+
+      function clear() {
+        writeFile(window.recipieFile, function(fileWriter) {
+          fileWriter.truncate(0);
+        });
+      }
+
+      function changeRecipie(id) {
+        $.each(window.recipies, function(index, recipie) {
+          if(this.id == id) {
+            recipie = window.recipies[index];
+            $('#recipie-list').val(id);
+            $('#title').val(recipie.title);
+            $('#description').val(recipie.description);
+          }
+        });
+      };
 
       function onInitFs(fs) {
         console.log('Opened file system: ' + fs.name);
@@ -48,7 +71,7 @@
       }
 
       function writeFile(fileEntry, writeAction) {
-        fileEntry.createWriter(function(fileWriter) {
+        window.recipieFile.createWriter(function(fileWriter) {
 
           fileWriter.onwriteend = function(e) {
             console.log('Write completed.');
@@ -68,16 +91,37 @@
           fileWriter.truncate(0);
         });
 
+        var id = getId();
         writeFile(fileEntry, function(fileWriter) {
           //fileWriter.seek(fileWriter.length)
           // Create a new Blob and write it to log.txt.
           var builder = new window.WebKitBlobBuilder(); // Note: window.WebKitBlobBuilder in Chrome 12.
-          var data = { title: $('#title').val(), description: $('#description').val() };
-          var jsonData = JSON.stringify(data, null, 2);
+          var recipie = { id: id, title: $('#title').val(), description: $('#description').val() };
+          window.recipies.push(recipie);
+          var jsonData = JSON.stringify(window.recipies, null, 2);
           builder.append(jsonData);
-
           fileWriter.write(builder.getBlob('text/plain'));
+
+          var list = $('#recipie-list');
+          list.find('option').remove();
+          bindList();
+          changeRecipie(id);
         });
+      }
+
+      function getId() {
+        var id = $('#recipie-list').val();
+        if(id == 0) {
+          var id = getNextId();
+        }
+        return id;
+      }
+
+      function getNextId() {
+        if(window.recipies.length == 0) {
+          return 1;
+        }
+        return window.recipies[window.recipies.length -1].id + 1;
       }
 
       function errorHandler(e) {
@@ -110,15 +154,31 @@
       function init() {
         window.requestFileSystem = window.requestFileSystem || window.webkitRequestFileSystem;
         window.requestFileSystem(window.PERSISTENT, 5*1024*1024 /*5MB*/, onInitFs, errorHandler);
-     }
+      }
 
       function load() {
         window.recipieFile.file(function(file) {
           var reader = new FileReader();
           reader.onloadend = function(e) {
             console.log('file contents: ' + this.result);
+            if(this.result !== "") {
+              window.recipies = JSON.parse(this.result);
+            } else {
+              window.recipies = [];
+            }
+            bindList();
           };
           reader.readAsText(file);
+        });
+      }
+
+      function bindList() {
+        var list = $('#recipie-list');
+        list.append($('<option />').val(0).text('New Recipie'));
+        console.log(window.recipies);
+        $.each(window.recipies, function() {
+          console.log(this);
+          list.append($('<option />').val(this.id).text(this.title));
         });
       }
 
