@@ -3,6 +3,7 @@
     <title>Recipies</title>
     <script src="lib/jquery-1.6.4.min.js"></script>
     <script src="lib/json2.js"></script>
+    <script src="lib/jquery.twfile.js"></script>
     <style>
       ol { list-style-type: none; width: 400px; }
       li label { width: 0; float: left; }
@@ -32,160 +33,95 @@
       </ol>
     </form>
     <script>
-      $(function() {
-        init();
-        $('#create').click(saveClick);
-        $('#clear').click(clear);
-        $('#recipie-list').change(function() { changeRecipie(this.value); });
-      });
+      var recipieBook = {
+        init : function() {
+          var filePath = document.location.href;
+          filePath = $.twFile.convertUriToLocalPath(filePath);
+          filePath = filePath.replace(/index.html/, '');
+          this.filePath = filePath + 'data.json';
+          this.load();
+        },
 
-      function clear() {
-        writeFile(window.recipieFile, function(fileWriter) {
-          fileWriter.truncate(0);
-        });
-      }
+        changeRecipie : function(id) {
+          console.log(id);
+          $.each(this.recipies, function(index, recipie) {
+            if(this.id == id) {
+              $('#recipie-list').val(id);
+              $('#title').val(this.title);
+              $('#description').val(this.description);
+            }
+          });
+        },
 
-      function changeRecipie(id) {
-        $.each(window.recipies, function(index, recipie) {
-          if(this.id == id) {
-            recipie = window.recipies[index];
-            $('#recipie-list').val(id);
-            $('#title').val(recipie.title);
-            $('#description').val(recipie.description);
-          }
-        });
-      };
-
-      function onInitFs(fs) {
-        console.log('Opened file system: ' + fs.name);
-        console.log(fs);
-        fs.root.getFile('log.txt', {create: true}, function(fileEntry) {
-          console.log(fileEntry.isFile === true)
-          console.log(fileEntry.name == 'log.txt')
-          console.log(fileEntry.fullPath == '/log.txt')
-
-          window.recipieFile = fileEntry;
-          console.log(window.recipieFile);
-          load();
-        }, errorHandler);
-      }
-
-      function writeFile(fileEntry, writeAction) {
-        window.recipieFile.createWriter(function(fileWriter) {
-
-          fileWriter.onwriteend = function(e) {
-            console.log('Write completed.');
-          };
-
-          fileWriter.onerror = function(e) {
-            console.log('Write failed: ' + e.toString());
-          };
-
-          writeAction(fileWriter);
-
-        }, errorHandler);
-      }
-
-      function save(fileEntry) {
-        writeFile(fileEntry, function(fileWriter) {
-          fileWriter.truncate(0);
-        });
-
-        var id = getId();
-        writeFile(fileEntry, function(fileWriter) {
-          //fileWriter.seek(fileWriter.length)
-          // Create a new Blob and write it to log.txt.
-          var builder = new window.WebKitBlobBuilder(); // Note: window.WebKitBlobBuilder in Chrome 12.
+        save : function() {
+          var id = this.getId();
           var recipie = { id: id, title: $('#title').val(), description: $('#description').val() };
-          window.recipies.push(recipie);
-          var jsonData = JSON.stringify(window.recipies, null, 2);
-          builder.append(jsonData);
-          fileWriter.write(builder.getBlob('text/plain'));
-
+          this.recipies.push(recipie);
+          var jsonData = JSON.stringify(this.recipies, null, 2);
+          $.twFile.save(this.filePath, jsonData)
           var list = $('#recipie-list');
           list.find('option').remove();
-          bindList();
-          changeRecipie(id);
-        });
-      }
+          this.bindList();
+          this.changeRecipie(id);
+        },
 
-      function getId() {
-        var id = $('#recipie-list').val();
-        if(id == 0) {
-          var id = getNextId();
+        getId : function() {
+          var id = parseInt($('#recipie-list').val());
+          if(id == 0) {
+            var id = this.getNextId();
+          }
+          return id;
+        },
+
+        getNextId : function() {
+          console.log(this.recipies);
+          if(this.recipies.length == 0) {
+            return 1;
+          }
+          return this.recipies[this.recipies.length -1].id + 1;
+        },
+
+        load : function() {
+          fileContents = $.twFile.load(this.filePath)
+          console.log('file contents: ' + fileContents);
+          if(fileContents) {
+            this.recipies = JSON.parse(fileContents);
+          } else {
+            this.recipies = [];
+          }
+          this.bindList();
+        },
+
+        bindList : function() {
+          var list = $('#recipie-list');
+          list.append($('<option />').val(0).text('New Recipie'));
+          console.log(this.recipies);
+          $.each(this.recipies, function() {
+            list.append($('<option />').val(this.id).text(this.title));
+          });
+        },
+
+        clear : function() {
+          console.log(this.filePath);
+          $.twFile.save(this.filePath, '[]');
         }
-        return id;
-      }
-
-      function getNextId() {
-        if(window.recipies.length == 0) {
-          return 1;
-        }
-        return window.recipies[window.recipies.length -1].id + 1;
-      }
-
-      function errorHandler(e) {
-        var msg = '';
-
-        switch (e.code) {
-          case FileError.QUOTA_EXCEEDED_ERR:
-            msg = 'QUOTA_EXCEEDED_ERR';
-            break;
-          case FileError.NOT_FOUND_ERR:
-            msg = 'NOT_FOUND_ERR';
-            break;
-          case FileError.SECURITY_ERR:
-            msg = 'SECURITY_ERR';
-            break;
-          case FileError.INVALID_MODIFICATION_ERR:
-            msg = 'INVALID_MODIFICATION_ERR';
-            break;
-          case FileError.INVALID_STATE_ERR:
-            msg = 'INVALID_STATE_ERR';
-            break;
-          default:
-            msg = 'Unknown Error';
-            break;
-        };
-
-        console.log('Error: ' + msg);
-      }
-
-      function init() {
-        window.requestFileSystem = window.requestFileSystem || window.webkitRequestFileSystem;
-        window.requestFileSystem(window.PERSISTENT, 5*1024*1024 /*5MB*/, onInitFs, errorHandler);
-      }
-
-      function load() {
-        window.recipieFile.file(function(file) {
-          var reader = new FileReader();
-          reader.onloadend = function(e) {
-            console.log('file contents: ' + this.result);
-            if(this.result !== "") {
-              window.recipies = JSON.parse(this.result);
-            } else {
-              window.recipies = [];
-            }
-            bindList();
-          };
-          reader.readAsText(file);
-        });
-      }
-
-      function bindList() {
-        var list = $('#recipie-list');
-        list.append($('<option />').val(0).text('New Recipie'));
-        console.log(window.recipies);
-        $.each(window.recipies, function() {
-          console.log(this);
-          list.append($('<option />').val(this.id).text(this.title));
-        });
       }
 
       function saveClick(e) {
         e.preventDefault();
-        save(window.fileEntry);
+        recipieBook.save();
       }
+
+      function clear(e) {
+        recipieBook.clear();
+      }
+
+      $(function() {
+        recipieBook.init();
+        $('#create').click(saveClick);
+        $('#clear').click(clear);
+        $('#recipie-list').change(function() { recipieBook.changeRecipie(this.value); });
+      });
     </script>
   </body>
 </html>
