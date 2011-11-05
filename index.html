@@ -43,6 +43,11 @@
 
         changeRecipie : function(id) {
           console.log(id);
+          if(id == 0) {
+            $('#title').val('');
+            $('#description').val('');
+            return;
+          }
           $.each(this.recipies, function(index, recipie) {
             if(this.id == id) {
               $('#recipie-list').val(id);
