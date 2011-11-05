@@ -28,7 +28,6 @@
         </li>
         <li>
           <input type="submit" id="create" name="create" value="Create"></input>
-          <input type="button" id="clear" name="clear" value="Clear"></input>
         </li>
       </ol>
     </form>
@@ -99,11 +98,6 @@
           $.each(this.recipies, function() {
             list.append($('<option />').val(this.id).text(this.title));
           });
-        },
-
-        clear : function() {
-          console.log(this.filePath);
-          $.twFile.save(this.filePath, '[]');
         }
       }
 
@@ -112,14 +106,9 @@
         recipieBook.save();
       }
 
-      function clear(e) {
-        recipieBook.clear();
-      }
-
       $(function() {
         recipieBook.init();
         $('#create').click(saveClick);
-        $('#clear').click(clear);
         $('#recipie-list').change(function() { recipieBook.changeRecipie(this.value); });
       });
     </script>
