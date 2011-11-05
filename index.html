@@ -31,7 +31,7 @@
           <input type="text" id="tags" name="tags"></input>
         </li>
         <li>
-          <input type="submit" id="create" name="create" value="Create"></input>
+          <input type="submit" id="save" name="save" value="Save"></input>
         </li>
       </ol>
     </form>
@@ -53,34 +53,56 @@
             $('#tags').val('');
             return;
           }
-          $.each(this.recipies, function(index, recipie) {
-            if(this.id == id) {
-              $('#recipie-list').val(id);
-              $('#title').val(this.title);
-              $('#description').val(this.description);
-              $('#tags').val(this.tags.join(', '));
-            }
-          });
+          this.recipie = this.getRecipie(id);
+          console.log(this.recipie);
+          $('#recipie-list').val(id);
+          $('#title').val(this.recipie.title);
+          $('#description').val(this.recipie.description);
+          $('#tags').val(this.recipie.tags.join(', '));
         },
 
         save : function() {
-          var recipie = this.buildRecipie();
-          this.recipies.push(recipie);
+          if(this.recipie === null) { this.addNewRecipie(); }
+          this.updateRecipie(this.recipie);
           var jsonData = JSON.stringify(this.recipies, null, 2);
           $.twFile.save(this.filePath, jsonData)
           var list = $('#recipie-list');
           list.find('option').remove();
           this.bindList();
-          this.changeRecipie(recipie.id);
+          this.changeRecipie(this.recipie.id);
         },
 
-        buildRecipie : function() {
-          return {
-            id: this.getId(),
-            title: $('#title').val(),
-            description: $('#description').val(),
-            tags: this.buildTags()
-          };
+        currentId : function() {
+          var id = parseInt($('#recipie-list').val());
+          return id == 0;
+        },
+
+        isNewRecipie : function() {
+          var id = parseInt($('#recipie-list').val());
+          return id == 0;
+        },
+
+        addNewRecipie : function() {
+          this.recipie = {
+            id: getNextId(),
+            name: '',
+            description: '',
+            tags: []
+          }
+          this.recipies.push(this.recipie);
+        },
+
+        getRecipie : function(id) {
+          for(var i = 0; i < this.recipies.length; i++) {
+            var recipie = this.recipies[i];
+            if(recipie.id == id) { return recipie; }
+          }
+        },
+
+        updateRecipie : function(recipie) {
+          recipie.title = $('#title').val(),
+          recipie.description = $('#description').val(),
+          recipie.tags = this.buildTags()
         },
 
         buildTags : function() {
@@ -89,14 +111,6 @@
             if(item == '') { return null; }
             return item.trim();
           });
-        },
-
-        getId : function() {
-          var id = parseInt($('#recipie-list').val());
-          if(id == 0) {
-            var id = this.getNextId();
-          }
-          return id;
         },
 
         getNextId : function() {
@@ -135,7 +149,7 @@
 
       $(function() {
         recipieBook.init();
-        $('#create').click(saveClick);
+        $('#save').click(saveClick);
         $('#recipie-list').change(function() { recipieBook.changeRecipie(this.value); });
       });
     </script>
