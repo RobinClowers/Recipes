@@ -27,6 +27,10 @@
           <textarea id="description" name="description"></textarea>
         </li>
         <li>
+          <label for="tags">Tags</label>
+          <input type="text" id="tags" name="tags"></input>
+        </li>
+        <li>
           <input type="submit" id="create" name="create" value="Create"></input>
         </li>
       </ol>
@@ -46,6 +50,7 @@
           if(id == 0) {
             $('#title').val('');
             $('#description').val('');
+            $('#tags').val('');
             return;
           }
           $.each(this.recipies, function(index, recipie) {
@@ -53,20 +58,37 @@
               $('#recipie-list').val(id);
               $('#title').val(this.title);
               $('#description').val(this.description);
+              $('#tags').val(this.tags.join(', '));
             }
           });
         },
 
         save : function() {
-          var id = this.getId();
-          var recipie = { id: id, title: $('#title').val(), description: $('#description').val() };
+          var recipie = this.buildRecipie();
           this.recipies.push(recipie);
           var jsonData = JSON.stringify(this.recipies, null, 2);
           $.twFile.save(this.filePath, jsonData)
           var list = $('#recipie-list');
           list.find('option').remove();
           this.bindList();
-          this.changeRecipie(id);
+          this.changeRecipie(recipie.id);
+        },
+
+        buildRecipie : function() {
+          return {
+            id: this.getId(),
+            title: $('#title').val(),
+            description: $('#description').val(),
+            tags: this.buildTags()
+          };
+        },
+
+        buildTags : function() {
+          var list = $('#tags').val().split(',');
+          return $.map(list, function (item, index) {
+            if(item == '') { return null; }
+            return item.trim();
+          });
         },
 
         getId : function() {

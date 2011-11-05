@@ -2,11 +2,23 @@
   {
     "id": 1,
     "title": "first",
-    "description": "one"
+    "description": "one",
+    "tags": []
   },
   {
     "id": 2,
     "title": "second",
-    "description": "two"
+    "description": "two",
+    "tags": []
+  },
+  {
+    "id": 3,
+    "title": "third",
+    "description": "three",
+    "tags": [
+      "tag1",
+      "tag2",
+      "tag3"
+    ]
   }
 ]
