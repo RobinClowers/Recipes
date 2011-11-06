@@ -16,6 +16,9 @@
     <form id="recipe_form">
       <ol>
         <li>
+          <label>Tags</label><select id="tag-list" name="tag-list" size="10"></select>
+        </li>
+        <li>
           <label>List</label><select id="recipie-list" name="recipie-list"></select>
         </li>
         <li>
@@ -129,7 +132,31 @@
           } else {
             this.recipies = [];
           }
+          this.buildTagIndex();
+          this.bindTags();
           this.bindList();
+        },
+
+        buildTagIndex : function() {
+          this.tags = [];
+          var tags = this.tags;
+          $.each(this.recipies, function(index, recipie) {
+            $.each(recipie.tags, function(tagIndex, tag) {
+              var notPresent = $.inArray(tag, tags) == -1;
+              console.log(tag);
+              console.log(notPresent);
+              if(notPresent) { tags.push(tag); }
+              console.log(tags);
+            });
+          });
+        },
+
+        bindTags : function() {
+          var list = $('#tag-list');
+          list.append($('<option />').text('All'));
+          $.each(this.tags, function(index, tag) {
+            list.append($('<option />').val(tag).text(tag));
+          });
         },
 
         bindList : function() {

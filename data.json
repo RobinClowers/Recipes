@@ -3,13 +3,17 @@
     "id": 1,
     "title": "first",
     "description": "one",
-    "tags": []
+    "tags": [
+      "tag1"
+    ]
   },
   {
     "id": 2,
     "title": "second",
     "description": "two",
-    "tags": []
+    "tags": [
+      "tag2"
+    ]
   },
   {
     "id": 3,
