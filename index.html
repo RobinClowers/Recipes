@@ -64,13 +64,17 @@
           $('#tags').val(this.recipie.tags.join(', '));
         },
 
+        filterRecipies : function(tag) {
+          console.log('filtering by: ' + tag);
+          this.tagFilter = tag;
+          this.bindList();
+        },
+
         save : function() {
           if(this.recipie === null) { this.addNewRecipie(); }
           this.updateRecipie(this.recipie);
           var jsonData = JSON.stringify(this.recipies, null, 2);
           $.twFile.save(this.filePath, jsonData)
-          var list = $('#recipie-list');
-          list.find('option').remove();
           this.bindList();
           this.changeRecipie(this.recipie.id);
         },
@@ -117,7 +121,6 @@
         },
 
         getNextId : function() {
-          console.log(this.recipies);
           if(this.recipies.length == 0) {
             return 1;
           }
@@ -132,6 +135,7 @@
           } else {
             this.recipies = [];
           }
+          console.log(this.recipies);
           this.buildTagIndex();
           this.bindTags();
           this.bindList();
@@ -143,10 +147,7 @@
           $.each(this.recipies, function(index, recipie) {
             $.each(recipie.tags, function(tagIndex, tag) {
               var notPresent = $.inArray(tag, tags) == -1;
-              console.log(tag);
-              console.log(notPresent);
               if(notPresent) { tags.push(tag); }
-              console.log(tags);
             });
           });
         },
@@ -159,12 +160,21 @@
           });
         },
 
+        isFilterSet : function() {
+          return typeof(this.tagFilter) != 'undefined';
+        },
+
         bindList : function() {
           var list = $('#recipie-list');
+          list.find('option').remove();
           list.append($('<option />').val(0).text('New Recipie'));
-          console.log(this.recipies);
+          var noFilter = !this.isFilterSet();
+          var tagFilter = this.tagFilter;
           $.each(this.recipies, function() {
-            list.append($('<option />').val(this.id).text(this.title));
+            var present = $.inArray(tagFilter, this.tags) != -1;
+            if(noFilter || present) {
+              list.append($('<option />').val(this.id).text(this.title));
+            }
           });
         }
       }
@@ -178,6 +188,7 @@
         recipieBook.init();
         $('#save').click(saveClick);
         $('#recipie-list').change(function() { recipieBook.changeRecipie(this.value); });
+        $('#tag-list').change(function() { recipieBook.filterRecipies(this.value); });
       });
     </script>
   </body>
