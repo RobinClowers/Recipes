@@ -6,21 +6,27 @@
     <script src="lib/jquery.twfile.js"></script>
     <style>
       ol { list-style-type: none; width: 400px; }
-      li label { width: 0; float: left; }
-      li input[type=text], select, textarea { margin-left: 100px; width: 100%; }
-      li input[type=submit] { float: right; }
+      ol#selection { width: 100%; }
+      ol#selection li { display: inline-block; }
+      ol#selection li select { min-width: 200px; }
+      ol#selection li label { display: block; }
+      ol#recipie-fields li label { width: 0; float: left; }
+      ol#recipie-fields li input[type=text], textarea { margin-left: 100px; width: 100%; }
+      ol#recipie-fields li input[type=submit] { float: right; }
     </style>
   </head>
   <body>
     <h1>Recipies!</h1>
-    <form id="recipe_form">
-      <ol>
+    <form id="recipe-form">
+      <ol id="selection">
         <li>
           <label>Tags</label><select id="tag-list" name="tag-list" size="10"></select>
         </li>
         <li>
-          <label>List</label><select id="recipie-list" name="recipie-list"></select>
+          <label>List</label><select id="recipie-list" name="recipie-list" size="10"></select>
         </li>
+      </ol>
+      <ol id="recipie-fields">
         <li>
           <label for="title">Title</label>
           <input type="text" id="title" name="title"></input>
@@ -48,12 +54,16 @@
           this.load();
         },
 
+        clearForm : function() {
+          $('#title').val('');
+          $('#description').val('');
+          $('#tags').val('');
+        },
+
         changeRecipie : function(id) {
           console.log(id);
           if(id == 0) {
-            $('#title').val('');
-            $('#description').val('');
-            $('#tags').val('');
+            this.clearForm();
             return;
           }
           this.recipie = this.getRecipie(id);
@@ -166,6 +176,7 @@
 
         bindList : function() {
           var list = $('#recipie-list');
+          this.clearForm();
           list.find('option').remove();
           list.append($('<option />').val(0).text('New Recipie'));
           var noFilter = !this.isFilterSet();
