@@ -76,6 +76,9 @@
 
         filterRecipies : function(tag) {
           console.log('filtering by: ' + tag);
+          if(tag == '') {
+            this.tagFilter = ''
+          }
           this.tagFilter = tag;
           this.bindList();
         },
@@ -164,14 +167,14 @@
 
         bindTags : function() {
           var list = $('#tag-list');
-          list.append($('<option />').text('All'));
+          list.append($('<option />').val('').text('All'));
           $.each(this.tags, function(index, tag) {
             list.append($('<option />').val(tag).text(tag));
           });
         },
 
         isFilterSet : function() {
-          return typeof(this.tagFilter) != 'undefined';
+          return typeof(this.tagFilter) != 'undefined' && this.tagFilter != '';
         },
 
         bindList : function() {
