@@ -1,28 +1,31 @@
-[
-  {
-    "id": 1,
-    "title": "first",
-    "description": "one",
-    "tags": [
-      "tag1"
-    ]
-  },
-  {
-    "id": 2,
-    "title": "second",
-    "description": "two",
-    "tags": [
-      "tag2"
-    ]
-  },
-  {
-    "id": 3,
-    "title": "third",
-    "description": "three",
-    "tags": [
-      "tag1",
-      "tag2",
-      "tag3"
-    ]
-  }
-]
+{
+  "recipes": [
+    {
+      "id": 1,
+      "title": "first",
+      "description": "one",
+      "tags": [
+        "tag1"
+      ]
+    },
+    {
+      "id": 2,
+      "title": "second",
+      "description": "two",
+      "tags": [
+        "tag2"
+      ]
+    },
+    {
+      "id": 3,
+      "title": "third",
+      "description": "three",
+      "tags": [
+        "tag1",
+        "tag2",
+        "tag3"
+      ]
+    }
+  ],
+  "tagGroups": []
+}

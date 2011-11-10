@@ -18,6 +18,11 @@
   <body>
     <h1>Recipes!</h1>
     <form id="recipe-form">
+      <ol class="actions">
+        <li>
+          <button id="edit-tag-groups">Edit Tag Groups</button>
+        </li>
+      </ol>
       <ol id="selection">
         <li>
           <label>Tags</label><select id="tag-list" name="tag-list" size="10"></select>
@@ -43,6 +48,15 @@
           <input type="submit" id="save" name="save" value="Save"></input>
         </li>
       </ol>
+    </form>
+    <form id="tag-group-form">
+      <ol class="actions">
+        <li>
+          <button id="show-recipes">Show Recipes</button>
+        </li>
+      </ol>
+      <ol id="ungrouped-tags"></ol>
+      <ol id="tag-groups"></ol>
     </form>
     <script>
       var recipeBook = {
@@ -86,7 +100,11 @@
         save : function() {
           if(this.recipe === null) { this.addNewRecipe(); }
           this.updateRecipe(this.recipe);
-          var jsonData = JSON.stringify(this.recipes, null, 2);
+          var data = {
+            recipes : this.recipes,
+            tagGroups : this.tagGroups
+          };
+          var jsonData = JSON.stringify(data, null, 2);
           $.twFile.save(this.filePath, jsonData)
           this.bindList();
           this.changeRecipe(this.recipe.id);
@@ -144,9 +162,12 @@
           fileContents = $.twFile.load(this.filePath)
           console.log('file contents: ' + fileContents);
           if(fileContents) {
-            this.recipes = JSON.parse(fileContents);
+            var data = JSON.parse(fileContents);
+            this.recipes = data.recipes;
+            this.tagGroups = data.tagGroups;
           } else {
             this.recipes = [];
+            this.tagGroups = [];
           }
           console.log(this.recipes);
           this.buildTagIndex();
@@ -193,6 +214,18 @@
         }
       }
 
+      function editTagGroups(e) {
+        e.preventDefault();
+        $('#recipe-form').hide();
+        $('#tag-group-form').show();
+      }
+
+      function showRecipes(e) {
+        e.preventDefault();
+        $('#tag-group-form').hide();
+        $('#recipe-form').show();
+      }
+
       function saveClick(e) {
         e.preventDefault();
         recipeBook.save();
@@ -200,6 +233,8 @@
 
       $(function() {
         recipeBook.init();
+        $('#edit-tag-groups').click(editTagGroups);
+        $('#show-recipes').click(showRecipes);
         $('#save').click(saveClick);
         $('#recipe-list').change(function() { recipeBook.changeRecipe(this.value); });
         $('#tag-list').change(function() { recipeBook.filterRecipes(this.value); });
