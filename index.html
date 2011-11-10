@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>Recipies</title>
+    <title>Recipes</title>
     <script src="lib/jquery-1.6.4.min.js"></script>
     <script src="lib/json2.js"></script>
     <script src="lib/jquery.twfile.js"></script>
@@ -10,23 +10,23 @@
       ol#selection li { display: inline-block; }
       ol#selection li select { min-width: 200px; }
       ol#selection li label { display: block; }
-      ol#recipie-fields li label { width: 0; float: left; }
-      ol#recipie-fields li input[type=text], textarea { margin-left: 100px; width: 100%; }
-      ol#recipie-fields li input[type=submit] { float: right; }
+      ol#recipe-fields li label { width: 0; float: left; }
+      ol#recipe-fields li input[type=text], textarea { margin-left: 100px; width: 100%; }
+      ol#recipe-fields li input[type=submit] { float: right; }
     </style>
   </head>
   <body>
-    <h1>Recipies!</h1>
+    <h1>Recipes!</h1>
     <form id="recipe-form">
       <ol id="selection">
         <li>
           <label>Tags</label><select id="tag-list" name="tag-list" size="10"></select>
         </li>
         <li>
-          <label>List</label><select id="recipie-list" name="recipie-list" size="10"></select>
+          <label>List</label><select id="recipe-list" name="recipe-list" size="10"></select>
         </li>
       </ol>
-      <ol id="recipie-fields">
+      <ol id="recipe-fields">
         <li>
           <label for="title">Title</label>
           <input type="text" id="title" name="title"></input>
@@ -45,7 +45,7 @@
       </ol>
     </form>
     <script>
-      var recipieBook = {
+      var recipeBook = {
         init : function() {
           var filePath = document.location.href;
           filePath = $.twFile.convertUriToLocalPath(filePath);
@@ -60,21 +60,21 @@
           $('#tags').val('');
         },
 
-        changeRecipie : function(id) {
+        changeRecipe : function(id) {
           console.log(id);
           if(id == 0) {
             this.clearForm();
             return;
           }
-          this.recipie = this.getRecipie(id);
-          console.log(this.recipie);
-          $('#recipie-list').val(id);
-          $('#title').val(this.recipie.title);
-          $('#description').val(this.recipie.description);
-          $('#tags').val(this.recipie.tags.join(', '));
+          this.recipe = this.getRecipe(id);
+          console.log(this.recipe);
+          $('#recipe-list').val(id);
+          $('#title').val(this.recipe.title);
+          $('#description').val(this.recipe.description);
+          $('#tags').val(this.recipe.tags.join(', '));
         },
 
-        filterRecipies : function(tag) {
+        filterRecipes : function(tag) {
           console.log('filtering by: ' + tag);
           if(tag == '') {
             this.tagFilter = ''
@@ -84,45 +84,45 @@
         },
 
         save : function() {
-          if(this.recipie === null) { this.addNewRecipie(); }
-          this.updateRecipie(this.recipie);
-          var jsonData = JSON.stringify(this.recipies, null, 2);
+          if(this.recipe === null) { this.addNewRecipe(); }
+          this.updateRecipe(this.recipe);
+          var jsonData = JSON.stringify(this.recipes, null, 2);
           $.twFile.save(this.filePath, jsonData)
           this.bindList();
-          this.changeRecipie(this.recipie.id);
+          this.changeRecipe(this.recipe.id);
         },
 
         currentId : function() {
-          var id = parseInt($('#recipie-list').val());
+          var id = parseInt($('#recipe-list').val());
           return id == 0;
         },
 
-        isNewRecipie : function() {
-          var id = parseInt($('#recipie-list').val());
+        isNewRecipe : function() {
+          var id = parseInt($('#recipe-list').val());
           return id == 0;
         },
 
-        addNewRecipie : function() {
-          this.recipie = {
+        addNewRecipe : function() {
+          this.recipe = {
             id: getNextId(),
             name: '',
             description: '',
             tags: []
           }
-          this.recipies.push(this.recipie);
+          this.recipes.push(this.recipe);
         },
 
-        getRecipie : function(id) {
-          for(var i = 0; i < this.recipies.length; i++) {
-            var recipie = this.recipies[i];
-            if(recipie.id == id) { return recipie; }
+        getRecipe : function(id) {
+          for(var i = 0; i < this.recipes.length; i++) {
+            var recipe = this.recipes[i];
+            if(recipe.id == id) { return recipe; }
           }
         },
 
-        updateRecipie : function(recipie) {
-          recipie.title = $('#title').val(),
-          recipie.description = $('#description').val(),
-          recipie.tags = this.buildTags()
+        updateRecipe : function(recipe) {
+          recipe.title = $('#title').val(),
+          recipe.description = $('#description').val(),
+          recipe.tags = this.buildTags()
         },
 
         buildTags : function() {
@@ -134,21 +134,21 @@
         },
 
         getNextId : function() {
-          if(this.recipies.length == 0) {
+          if(this.recipes.length == 0) {
             return 1;
           }
-          return this.recipies[this.recipies.length -1].id + 1;
+          return this.recipes[this.recipes.length -1].id + 1;
         },
 
         load : function() {
           fileContents = $.twFile.load(this.filePath)
           console.log('file contents: ' + fileContents);
           if(fileContents) {
-            this.recipies = JSON.parse(fileContents);
+            this.recipes = JSON.parse(fileContents);
           } else {
-            this.recipies = [];
+            this.recipes = [];
           }
-          console.log(this.recipies);
+          console.log(this.recipes);
           this.buildTagIndex();
           this.bindTags();
           this.bindList();
@@ -157,8 +157,8 @@
         buildTagIndex : function() {
           this.tags = [];
           var tags = this.tags;
-          $.each(this.recipies, function(index, recipie) {
-            $.each(recipie.tags, function(tagIndex, tag) {
+          $.each(this.recipes, function(index, recipe) {
+            $.each(recipe.tags, function(tagIndex, tag) {
               var notPresent = $.inArray(tag, tags) == -1;
               if(notPresent) { tags.push(tag); }
             });
@@ -178,13 +178,13 @@
         },
 
         bindList : function() {
-          var list = $('#recipie-list');
+          var list = $('#recipe-list');
           this.clearForm();
           list.find('option').remove();
-          list.append($('<option />').val(0).text('New Recipie'));
+          list.append($('<option />').val(0).text('New Recipe'));
           var noFilter = !this.isFilterSet();
           var tagFilter = this.tagFilter;
-          $.each(this.recipies, function() {
+          $.each(this.recipes, function() {
             var present = $.inArray(tagFilter, this.tags) != -1;
             if(noFilter || present) {
               list.append($('<option />').val(this.id).text(this.title));
@@ -195,14 +195,14 @@
 
       function saveClick(e) {
         e.preventDefault();
-        recipieBook.save();
+        recipeBook.save();
       }
 
       $(function() {
-        recipieBook.init();
+        recipeBook.init();
         $('#save').click(saveClick);
-        $('#recipie-list').change(function() { recipieBook.changeRecipie(this.value); });
-        $('#tag-list').change(function() { recipieBook.filterRecipies(this.value); });
+        $('#recipe-list').change(function() { recipeBook.changeRecipe(this.value); });
+        $('#tag-list').change(function() { recipeBook.filterRecipes(this.value); });
       });
     </script>
   </body>
