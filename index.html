@@ -5,14 +5,24 @@
     <script src="lib/json2.js"></script>
     <script src="lib/jquery.twfile.js"></script>
     <style>
-      ol { list-style-type: none; width: 400px; }
+      ol { margin: 16px 0 0 40px; padding: 0 }
+      ol { list-style-type: none; }
+      ol.fields { width: 500px; }
+      ol.fields li { padding-top: 5px; }
+      ol.fields li.button { text-align: right; }
+      ol.fields li label { vertical-align: top; text-align: right; width: 190px; display: inline-block; }
+      ol.fields li input[type=text], textarea { width: 300px; }
+      ol.fields li button { margin-right: 5px; }
+      ol.side-by-side li { vertical-align: top; display: inline-block; }
+      ol.side-by-side ol li { display: block; }
       ol#selection { width: 100%; }
-      ol#selection li { display: inline-block; }
       ol#selection li select { min-width: 200px; }
       ol#selection li label { display: block; }
-      ol#recipe-fields li label { width: 0; float: left; }
-      ol#recipe-fields li input[type=text], textarea { margin-left: 100px; width: 100%; }
-      ol#recipe-fields li input[type=submit] { float: right; }
+      #tag-group-form { display: none }
+      ol #tag-groups { min-width: 400px; }
+      ol #current-tag-group { min-height: 100px }
+      ol.draggable { background-color: #EEE; padding: 20px; }
+      ol#tag-group-fields ol { min-width: 100px; }
     </style>
   </head>
   <body>
@@ -23,7 +33,7 @@
           <button id="edit-tag-groups">Edit Tag Groups</button>
         </li>
       </ol>
-      <ol id="selection">
+      <ol id="selection" class="side-by-side">
         <li>
           <label>Tags</label><select id="tag-list" name="tag-list" size="10"></select>
         </li>
@@ -31,7 +41,7 @@
           <label>List</label><select id="recipe-list" name="recipe-list" size="10"></select>
         </li>
       </ol>
-      <ol id="recipe-fields">
+      <ol id="recipe-fields" class="fields">
         <li>
           <label for="title">Title</label>
           <input type="text" id="title" name="title"></input>
@@ -44,8 +54,8 @@
           <label for="tags">Tags</label>
           <input type="text" id="tags" name="tags"></input>
         </li>
-        <li>
-          <input type="submit" id="save" name="save" value="Save"></input>
+        <li class="button">
+          <button id="save" name="save">Save</button>
         </li>
       </ol>
     </form>
@@ -55,8 +65,27 @@
           <button id="show-recipes">Show Recipes</button>
         </li>
       </ol>
-      <ol id="ungrouped-tags"></ol>
-      <ol id="tag-groups"></ol>
+      <ol>
+        <li>
+          <select id="tag-groups" size="10"></select>
+        </li>
+      </ol>
+      <ol class="fields">
+        <li>
+          <label for="new-tag-group">Tag Group</label><input type="text" id="new-tag-group"></input>
+        </li>
+        <li class="button">
+          <button id="add-tag-group">Add Tag Group</button>
+        </li>
+      </ol>
+      <ol id="tag-group-fields" class="side-by-side">
+        <li>
+          <ol id="ungrouped-tags" class="draggable"></ol>
+        </li>
+        <li>
+          <ol id="current-tag-group" class="draggable"></ol>
+        </li>
+      </ol>
     </form>
     <script>
       var recipeBook = {
@@ -173,6 +202,8 @@
           this.buildTagIndex();
           this.bindTags();
           this.bindList();
+          this.bindTagGroups();
+          this.bindUngroupedTags();
         },
 
         buildTagIndex : function() {
@@ -211,6 +242,30 @@
               list.append($('<option />').val(this.id).text(this.title));
             }
           });
+        },
+
+        bindTagGroups : function() {
+          var groups = $('#tag-groups');
+          var currentGroup = $('#current-tag-group');
+          groups.append($('<option />').text('New Tag Group'));
+          $.each(this.tagGroups, function() {
+            groups.append($('<option />').val(this.name).text(this.name));
+          });
+        },
+
+        bindUngroupedTags : function() {
+          var tagGroups = this.tagGroups;
+          var tagList = $('#ungrouped-tags');
+          var group = $('#current-tag-group').val();
+          $.each(this.tags, function() {
+            var notInGroup = $.inArray(this, group) == -1;
+            if(notInGroup) {
+              tagList.append('<li>' + this + '</li>');
+            }
+          });
+        },
+
+        notInGroup : function(tag, group) {
         }
       }
 
