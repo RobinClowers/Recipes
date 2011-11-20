@@ -1,0 +1,77 @@
+ol {
+  margin: 17px 0 0 40px;
+  padding: 0
+}
+
+ol {
+  list-style-type: none;
+}
+
+ol.fields {
+  width: 500px;
+}
+
+ol.fields li {
+  padding-top: 5px;
+}
+
+ol.fields li.button {
+  text-align: right;
+}
+
+ol.fields li label {
+  vertical-align: top;
+  text-align: right;
+  width: 190px;
+  display: inline-block;
+}
+
+ol.fields li input[type=text], textarea {
+  width: 300px;
+}
+
+ol.fields li button {
+  margin-right: 5px;
+}
+
+ol.side-by-side li {
+  vertical-align: top;
+  display: inline-block;
+}
+
+ol.side-by-side ol li {
+  display: block;
+}
+
+ol#selection {
+  width: 100%;
+}
+
+ol#selection li select {
+  min-width: 245px;
+}
+
+ol#selection li label {
+  display: block;
+}
+
+#tag-group-form {
+  display: none
+}
+
+ol #tag-groups {
+  min-width: 490px;
+}
+
+ol #current-tag-group {
+  min-height: 100px;
+}
+
+ol.draggable {
+  background-color: #EEE;
+  padding: 20px;
+}
+
+ol#tag-group-fields ol {
+  min-width: 160px;
+}
