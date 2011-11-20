@@ -22,7 +22,7 @@
       ol #tag-groups { min-width: 490px; }
       ol #current-tag-group { min-height: 100px }
       ol.draggable { background-color: #EEE; padding: 20px; }
-      ol#tag-group-fields ol { min-width: 100px; }
+      ol#tag-group-fields ol { min-width: 160px; }
     </style>
   </head>
   <body>
@@ -126,17 +126,21 @@
           this.bindList();
         },
 
-        save : function() {
-          if(this.recipe === null) { this.addNewRecipe(); }
+        saveRecipe : function() {
+          if(this.isNewRecipe()) { this.recipes.push(this.recipe); }
           this.updateRecipe(this.recipe);
+          this.save();
+          this.bindList();
+          this.changeRecipe(this.recipe.id);
+        },
+
+        save : function() {
           var data = {
             recipes : this.recipes,
             tagGroups : this.tagGroups
           };
           var jsonData = JSON.stringify(data, null, 2);
           $.twFile.save(this.filePath, jsonData)
-          this.bindList();
-          this.changeRecipe(this.recipe.id);
         },
 
         currentId : function() {
@@ -149,14 +153,13 @@
           return id == 0;
         },
 
-        addNewRecipe : function() {
+        newRecipe : function() {
           this.recipe = {
-            id: getNextId(),
+            id: this.getNextId(),
             name: '',
             description: '',
             tags: []
-          }
-          this.recipes.push(this.recipe);
+          };
         },
 
         getRecipe : function(id) {
@@ -199,6 +202,7 @@
             this.tagGroups = [];
           }
           console.log(this.recipes);
+          this.newRecipe();
           this.buildTagIndex();
           this.bindTags();
           this.bindList();
@@ -234,6 +238,7 @@
           this.clearForm();
           list.find('option').remove();
           list.append($('<option />').val(0).text('New Recipe'));
+          list.val(0);
           var noFilter = !this.isFilterSet();
           var tagFilter = this.tagFilter;
           $.each(this.recipes, function() {
@@ -247,7 +252,7 @@
         bindTagGroups : function() {
           var groups = $('#tag-groups');
           var currentGroup = $('#current-tag-group');
-          groups.append($('<option />').text('New Tag Group'));
+          groups.find('option').remove();
           $.each(this.tagGroups, function() {
             groups.append($('<option />').val(this.name).text(this.name));
           });
@@ -265,8 +270,20 @@
           });
         },
 
-        notInGroup : function(tag, group) {
+        addTagGroup : function() {
+          var group = {
+            name: $('#new-tag-group').val(),
+            tags: []
+          };
+          this.tagGroups.push(group);
+          this.save();
+          this.bindTagGroups();
         }
+      }
+
+      function addTagGroup(e) {
+        e.preventDefault();
+        recipeBook.addTagGroup();
       }
 
       function editTagGroups(e) {
@@ -283,11 +300,12 @@
 
       function saveClick(e) {
         e.preventDefault();
-        recipeBook.save();
+        recipeBook.saveRecipe();
       }
 
       $(function() {
         recipeBook.init();
+        $('#add-tag-group').click(addTagGroup);
         $('#edit-tag-groups').click(editTagGroups);
         $('#show-recipes').click(showRecipes);
         $('#save').click(saveClick);
