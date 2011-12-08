@@ -30,7 +30,9 @@
   "tagGroups": [
     {
       "name": "test",
-      "tags": []
+      "tags": [
+        "tag2"
+      ]
     }
   ]
 }

@@ -68,6 +68,7 @@ ol #current-tag-group {
 }
 
 ol.draggable {
+  cursor: pointer;
   background-color: #EEE;
   padding: 20px;
 }

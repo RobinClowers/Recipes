@@ -121,6 +121,7 @@ function RecipeBook() {
     bindList();
     bindTagGroups();
     bindUngroupedTags();
+    initializeTagGroups();
   }
 
   function buildTagIndex() {
@@ -168,6 +169,7 @@ function RecipeBook() {
     $.each(self.tagGroups, function() {
       groups.append($('<option />').val(this.name).text(this.name));
     });
+    groups.children().first().attr('selected', true);
   }
 
   function bindUngroupedTags() {
@@ -178,6 +180,27 @@ function RecipeBook() {
         tagList.append('<li>' + this + '</li>');
       }
     });
+  }
+
+  function initializeTagGroups() {
+    $('.draggable li').draggable();
+    $('.draggable').droppable({
+      drop: dropTag
+    });
+  }
+
+  function dropTag(event, ui) {
+    var newTag = $(ui.draggable)
+      .remove()
+      .clone()
+      .removeAttr('style');
+    $(this).append(newTag);
+    var groupName = $('#tag-groups option:selected').text();
+    var currentGroup = _.find(self.tagGroups, function(group) {
+      return group.name == groupName;
+    });
+    currentGroup.tags.push(newTag.text());
+    save();
   }
 
   function save() {
