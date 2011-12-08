@@ -77,10 +77,9 @@ function RecipeBook() {
   }
 
   function getRecipe(id) {
-    for(var i = 0; i < self.recipes.length; i++) {
-      var recipe = self.recipes[i];
-      if(recipe.id == id) { return recipe; }
-    }
+    return _.find(self.recipes, function(recipe) {
+      return recipe.id == id
+    });
   }
 
   function updateRecipe(recipe) {
@@ -128,8 +127,7 @@ function RecipeBook() {
     self.tags = [];
     $.each(self.recipes, function(index, recipe) {
       $.each(recipe.tags, function(tagIndex, tag) {
-        var notPresent = $.inArray(tag, self.tags) == -1;
-        if(notPresent) { self.tags.push(tag); }
+        if(!_.include(self.tags, tag)) { self.tags.push(tag); }
       });
     });
   }
@@ -157,8 +155,7 @@ function RecipeBook() {
     var noFilter = !isFilterSet();
     var tagFilter = self.tagFilter;
     $.each(self.recipes, function() {
-      var present = $.inArray(tagFilter, this.tags) != -1;
-      if(noFilter || present) {
+      if(noFilter || _.include(this.tags, tagFilter)) {
         list.append($('<option />').val(this.id).text(this.title));
       }
     });
@@ -177,8 +174,7 @@ function RecipeBook() {
     var tagList = $('#ungrouped-tags');
     var group = $('#current-tag-group').val();
     $.each(self.tags, function() {
-      var notInGroup = $.inArray(this, group) == -1;
-      if(notInGroup) {
+      if(!_.include(group, this)) {
         tagList.append('<li>' + this + '</li>');
       }
     });
