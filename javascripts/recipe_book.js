@@ -10,13 +10,11 @@ function RecipeBook() {
   };
 
   this.changeRecipe = function(id) {
-    console.log(id);
     if(id == 0) {
       clearForm();
       return;
     }
     self.recipe = getRecipe(id);
-    console.log(self.recipe);
     $('#recipe-list').val(id);
     $('#title').val(self.recipe.title);
     $('#description').val(self.recipe.description);
@@ -24,7 +22,6 @@ function RecipeBook() {
   }
 
   this.filterRecipes = function(tag) {
-    console.log('filtering by: ' + tag);
     if(tag == '') {
       self.tagFilter = ''
     }
