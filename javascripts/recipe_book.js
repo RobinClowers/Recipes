@@ -34,6 +34,7 @@ function RecipeBook() {
 
   this.changeTagGroup = function(tag) {
     bindCurrentTagGroup();
+    bindUngroupedTags();
   }
 
   this.saveRecipe = function() {
@@ -182,7 +183,7 @@ function RecipeBook() {
     tagList.find('li').remove();
     _.each(self.tags, function(tag) {
       if(_.include(group.tags, tag)) {
-        tagList.append('<li>' + tag + '</li>');
+        tagList.append($('<li>' + tag + '</li>').draggable());
       }
     });
   }
@@ -193,28 +194,43 @@ function RecipeBook() {
     tagList.find('li').remove();
     _.each(self.tags, function(tag) {
       if(!_.include(group.tags, tag)) {
-        tagList.append('<li>' + tag + '</li>');
+        tagList.append($('<li>' + tag + '</li>').draggable());
       }
     });
   }
 
   function initializeTagGroups() {
     $('.draggable li').draggable();
-    $('.draggable').droppable({
-      drop: dropTag
+    $('#current-tag-group').droppable({
+      drop: groupTag
+    });
+    $('#ungrouped-tags').droppable({
+      drop: ungroupTag
     });
   }
 
-  function dropTag(event, ui) {
-    var newTag = $(ui.draggable)
-      .remove()
-      .clone()
-      .removeAttr('style')
-      .draggable();
+  function groupTag(event, ui) {
+    var newTag = cloneTag(ui.draggable);
     $(this).append(newTag);
     var currentGroup = currentTagGroup();
     currentGroup.tags.push(newTag.text());
     save();
+  }
+
+  function ungroupTag(event, ui) {
+    var newTag = cloneTag(ui.draggable);
+    $(this).append(newTag);
+    var currentGroup = currentTagGroup();
+    currentGroup.tags.pop(newTag.text());
+    save();
+  }
+
+  function cloneTag(tag) {
+    return $(tag)
+      .remove()
+      .clone()
+      .removeAttr('style')
+      .draggable();
   }
 
   function currentTagGroup() {

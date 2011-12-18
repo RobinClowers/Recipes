@@ -33,6 +33,13 @@
       "tags": [
         "tag2"
       ]
+    },
+    {
+      "name": "group2",
+      "tags": [
+        "tag2",
+        "tag3"
+      ]
     }
   ]
 }
