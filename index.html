@@ -104,6 +104,7 @@
         $('#save').click(saveClick);
         $('#recipe-list').change(function() { recipeBook.changeRecipe(this.value); });
         $('#tag-list').change(function() { recipeBook.filterRecipes(this.value); });
+        $('#tag-groups').change(function() { recipeBook.changeTagGroup(this.value); });
       });
     </script>
   </body>

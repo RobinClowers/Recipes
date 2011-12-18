@@ -32,6 +32,10 @@ function RecipeBook() {
     bindList();
   }
 
+  this.changeTagGroup = function(tag) {
+    bindCurrentTagGroup();
+  }
+
   this.saveRecipe = function() {
     if(isNewRecipe()) { self.recipes.push(self.recipe); }
     updateRecipe(self.recipe);
@@ -121,6 +125,7 @@ function RecipeBook() {
     bindList();
     bindTagGroups();
     bindUngroupedTags();
+    bindCurrentTagGroup();
     initializeTagGroups();
   }
 
@@ -164,7 +169,6 @@ function RecipeBook() {
 
   function bindTagGroups() {
     var groups = $('#tag-groups');
-    var currentGroup = $('#current-tag-group');
     groups.find('option').remove();
     $.each(self.tagGroups, function() {
       groups.append($('<option />').val(this.name).text(this.name));
@@ -172,12 +176,24 @@ function RecipeBook() {
     groups.children().first().attr('selected', true);
   }
 
+  function bindCurrentTagGroup() {
+    var group = currentTagGroup();
+    var tagList = $('#current-tag-group');
+    tagList.find('li').remove();
+    _.each(self.tags, function(tag) {
+      if(_.include(group.tags, tag)) {
+        tagList.append('<li>' + tag + '</li>');
+      }
+    });
+  }
+
   function bindUngroupedTags() {
+    var group = currentTagGroup();
     var tagList = $('#ungrouped-tags');
-    var group = $('#current-tag-group').val();
-    $.each(self.tags, function() {
-      if(!_.include(group, this)) {
-        tagList.append('<li>' + this + '</li>');
+    tagList.find('li').remove();
+    _.each(self.tags, function(tag) {
+      if(!_.include(group.tags, tag)) {
+        tagList.append('<li>' + tag + '</li>');
       }
     });
   }
@@ -193,14 +209,20 @@ function RecipeBook() {
     var newTag = $(ui.draggable)
       .remove()
       .clone()
-      .removeAttr('style');
+      .removeAttr('style')
+      .draggable();
     $(this).append(newTag);
+    var currentGroup = currentTagGroup();
+    currentGroup.tags.push(newTag.text());
+    save();
+  }
+
+  function currentTagGroup() {
     var groupName = $('#tag-groups option:selected').text();
     var currentGroup = _.find(self.tagGroups, function(group) {
       return group.name == groupName;
     });
-    currentGroup.tags.push(newTag.text());
-    save();
+    return currentGroup;
   }
 
   function save() {
