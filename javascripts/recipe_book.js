@@ -220,7 +220,10 @@ function RecipeBook() {
   function ungroupTag(event, ui) {
     var newTag = cloneTag(ui.draggable);
     $(this).append(newTag);
-    self.currentTagGroup.tags.pop(newTag.text());
+    self.currentTagGroup.tags = _.filter(self.currentTagGroup.tags,
+      function(tag) {
+        return tag != newTag.text();
+    });
     save();
   }
 
