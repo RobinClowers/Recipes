@@ -32,7 +32,11 @@ function RecipeBook() {
     bindList();
   }
 
-  this.changeTagGroup = function(tag) {
+  this.changeTagGroup = function() {
+    var groupName = $('#tag-groups option:selected').text();
+    self.currentTagGroup = _.find(self.tagGroups, function(group) {
+      return group.name == groupName;
+    });
     bindCurrentTagGroup();
     bindUngroupedTags();
   }
@@ -125,8 +129,7 @@ function RecipeBook() {
     bindTags();
     bindList();
     bindTagGroups();
-    bindUngroupedTags();
-    bindCurrentTagGroup();
+    self.changeTagGroup();
     initializeTagGroups();
   }
 
@@ -178,22 +181,20 @@ function RecipeBook() {
   }
 
   function bindCurrentTagGroup() {
-    var group = currentTagGroup();
     var tagList = $('#current-tag-group');
     tagList.find('li').remove();
     _.each(self.tags, function(tag) {
-      if(_.include(group.tags, tag)) {
+      if(_.include(self.currentTagGroup.tags, tag)) {
         tagList.append($('<li>' + tag + '</li>').draggable());
       }
     });
   }
 
   function bindUngroupedTags() {
-    var group = currentTagGroup();
     var tagList = $('#ungrouped-tags');
     tagList.find('li').remove();
     _.each(self.tags, function(tag) {
-      if(!_.include(group.tags, tag)) {
+      if(!_.include(self.currentTagGroup.tags, tag)) {
         tagList.append($('<li>' + tag + '</li>').draggable());
       }
     });
@@ -212,16 +213,14 @@ function RecipeBook() {
   function groupTag(event, ui) {
     var newTag = cloneTag(ui.draggable);
     $(this).append(newTag);
-    var currentGroup = currentTagGroup();
-    currentGroup.tags.push(newTag.text());
+    self.currentTagGroup.tags.push(newTag.text());
     save();
   }
 
   function ungroupTag(event, ui) {
     var newTag = cloneTag(ui.draggable);
     $(this).append(newTag);
-    var currentGroup = currentTagGroup();
-    currentGroup.tags.pop(newTag.text());
+    self.currentTagGroup.tags.pop(newTag.text());
     save();
   }
 
@@ -231,14 +230,6 @@ function RecipeBook() {
       .clone()
       .removeAttr('style')
       .draggable();
-  }
-
-  function currentTagGroup() {
-    var groupName = $('#tag-groups option:selected').text();
-    var currentGroup = _.find(self.tagGroups, function(group) {
-      return group.name == groupName;
-    });
-    return currentGroup;
   }
 
   function save() {
