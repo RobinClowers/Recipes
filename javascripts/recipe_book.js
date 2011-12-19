@@ -44,7 +44,7 @@ function RecipeBook() {
     save();
     bindList();
     bindTags();
-    changeRecipe(self.recipe.id);
+    self.changeRecipe(self.recipe.id);
   }
 
   this.deleteRecipe = function(id) {
