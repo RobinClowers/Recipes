@@ -6,6 +6,7 @@
     <script src="lib/json2.js"></script>
     <script src="lib/jquery.twfile.js"></script>
     <script src="lib/underscore.min.js"></script>
+    <script src="lib/jquery.hotkeys.js"></script>
     <link rel="stylesheet" href="stylesheets/screen.css" type="text/css"></link>
   </head>
   <body>
@@ -96,6 +97,10 @@
         recipeBook.saveRecipe();
       }
 
+      function deleteRecipe() {
+        recipeBook.deleteRecipe(this.value);
+      };
+
       $(function() {
         recipeBook.init();
         $('#add-tag-group').click(addTagGroup);
@@ -105,6 +110,7 @@
         $('#recipe-list').change(function() { recipeBook.changeRecipe(this.value); });
         $('#tag-list').change(function() { recipeBook.filterRecipes(this.value); });
         $('#tag-groups').change(function() { recipeBook.changeTagGroup(); });
+        $('#recipe-list').bind('keyup', 'del', deleteRecipe);
       });
     </script>
   </body>

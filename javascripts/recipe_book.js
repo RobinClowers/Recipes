@@ -47,6 +47,17 @@ function RecipeBook() {
     changeRecipe(self.recipe.id);
   }
 
+  this.deleteRecipe = function(id) {
+    if(confirm('Are you sure you want to delete this recipe?')) {
+      self.recipes = _.filter(self.recipes,
+        function(recipe) {
+          return recipe.id != id;
+      });
+      save();
+      bindList();
+    }
+  }
+
   this.addTagGroup = function() {
     var group = {
       name: $('#new-tag-group').val(),
