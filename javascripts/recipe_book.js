@@ -55,6 +55,8 @@ function RecipeBook() {
       });
       save();
       bindList();
+      buildTagIndex();
+      bindTags();
     }
   }
 
