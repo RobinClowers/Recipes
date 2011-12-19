@@ -58,6 +58,15 @@ function RecipeBook() {
     }
   }
 
+  this.deleteTagGroup = function(groupName) {
+    if(confirm('Are you sure you want to delete this tag group?')) {
+      self.tagGroups = _.filter(self.tagGroups, function(group) {
+        return group.name != groupName;
+      });
+      bindTagGroups();
+    }
+  }
+
   this.addTagGroup = function() {
     var group = {
       name: $('#new-tag-group').val(),

@@ -101,6 +101,10 @@
         recipeBook.deleteRecipe(this.value);
       };
 
+      function deleteTagGroup() {
+        recipeBook.deleteTagGroup(this.value);
+      };
+
       $(function() {
         recipeBook.init();
         $('#add-tag-group').click(addTagGroup);
@@ -111,6 +115,7 @@
         $('#tag-list').change(function() { recipeBook.filterRecipes(this.value); });
         $('#tag-groups').change(function() { recipeBook.changeTagGroup(); });
         $('#recipe-list').bind('keyup', 'del', deleteRecipe);
+        $('#tag-groups').bind('keyup', 'del', deleteTagGroup);
       });
     </script>
   </body>
