@@ -17,7 +17,7 @@ function RecipeBook() {
     self.recipe = getRecipe(id);
     $('#recipe-list').val(id);
     $('#title').val(self.recipe.title);
-    $('#description').val(self.recipe.description);
+    $('#description').wysiwyg('setContent', self.recipe.description);
     $('#tags').val(self.recipe.tags.join(', '));
   }
 
@@ -81,7 +81,7 @@ function RecipeBook() {
 
   function clearForm() {
     $('#title').val('');
-    $('#description').val('');
+    $('#description').wysiwyg('setContent', '');
     $('#tags').val('');
   }
 
@@ -112,7 +112,7 @@ function RecipeBook() {
 
   function updateRecipe(recipe) {
     recipe.title = $('#title').val(),
-    recipe.description = $('#description').val(),
+    recipe.description = $('#description').wysiwyg('getContent');
     recipe.tags = buildTags()
   }
 

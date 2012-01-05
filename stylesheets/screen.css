@@ -8,11 +8,12 @@ ol {
 }
 
 ol.fields {
-  width: 500px;
+  width: 900px;
 }
 
 ol.fields li {
   padding-top: 5px;
+  clear: both;
 }
 
 ol.fields li.button {
@@ -27,7 +28,11 @@ ol.fields li label {
 }
 
 ol.fields li input[type=text], textarea {
-  width: 300px;
+  width: 700px;
+}
+
+ol.fields li .wysiwyg {
+  float: right;
 }
 
 ol.fields li button {

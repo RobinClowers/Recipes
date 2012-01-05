@@ -7,7 +7,9 @@
     <script src="lib/jquery.twfile.js"></script>
     <script src="lib/underscore.min.js"></script>
     <script src="lib/jquery.hotkeys.js"></script>
+    <script src="lib/jwysiwyg/jquery.wysiwyg.js"></script>
     <link rel="stylesheet" href="stylesheets/screen.css" type="text/css"></link>
+    <link rel="stylesheet" href="lib/jwysiwyg/jquery.wysiwyg.old-school.css" type="text/css"></link>
   </head>
   <body>
     <h1>Recipes!</h1>
@@ -31,12 +33,12 @@
           <input type="text" id="title" name="title"></input>
         </li>
         <li>
-          <label for="description">Description</label>
-          <textarea id="description" name="description"></textarea>
-        </li>
-        <li>
           <label for="tags">Tags</label>
           <input type="text" id="tags" name="tags"></input>
+        </li>
+        <li>
+          <label for="description">Description</label>
+          <textarea id="description" name="description"></textarea>
         </li>
         <li class="button">
           <button id="save" name="save">Save</button>
@@ -116,6 +118,9 @@
         $('#tag-groups').change(function() { recipeBook.changeTagGroup(); });
         $('#recipe-list').bind('keyup', 'del', deleteRecipe);
         $('#tag-groups').bind('keyup', 'del', deleteTagGroup);
+        $('#description').wysiwyg({
+          initialContent: '',
+        });
       });
     </script>
   </body>
